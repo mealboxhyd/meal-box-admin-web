@@ -1,0 +1,10 @@
+.GridItem{
+     text-align: center;
+    padding: 10px 15px 0 15px;
+}
+
+.GridItemBorder{
+    text-align: center;
+    border: 1px dashed rgb(153, 201, 231);
+    padding:5px
+}

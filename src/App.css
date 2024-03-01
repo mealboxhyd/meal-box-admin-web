@@ -1,0 +1,15 @@
+.appBackground{
+ background: linear-gradient(180deg, #047ABC 0%, #F0F2FA 100%);
+}
+
+.MuiButton-contained {
+  text-transform: capitalize !important;
+}
+
+.MuiButton-outlined {
+  text-transform: capitalize !important;
+}
+
+.MuiButton-text {
+  text-transform: capitalize !important;
+}

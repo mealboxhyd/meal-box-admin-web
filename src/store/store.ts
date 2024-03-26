@@ -2,10 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import { combineReducers } from "redux";
 import createSagaMiddleware from "redux-saga";
 import logger from "redux-logger";
-import { timeSheetsSlice } from "../features/timesheets/slices/slice";
+import { usersSlice } from "../features/users/slices/slice";
+import { homeSlice } from "../features/home/slices/slice";
+import { kicthensSlice } from "../features/kitchens/slices/slice";
 
 const rootReducer = combineReducers({
-  timeSheets: timeSheetsSlice.reducer,
+  users: usersSlice.reducer,
+  home: homeSlice.reducer,
+  kitchens: kicthensSlice.reducer,
 });
 
 export const saga = createSagaMiddleware();

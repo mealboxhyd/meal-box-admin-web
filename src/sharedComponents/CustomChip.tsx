@@ -42,6 +42,7 @@ export interface CustomStatusBadgeProps {
   disableLetterSpacing?: boolean;
   marginTop?: string;
   marginLeft?: string;
+  style?: any;
 }
 export interface CustomStatusType {
   backgroundColor?: string;

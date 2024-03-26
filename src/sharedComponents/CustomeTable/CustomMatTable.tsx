@@ -7,6 +7,7 @@ import {
   CardContent,
   CardHeader,
   Checkbox,
+  Collapse,
   Grid,
   IconButton,
   InputAdornment,
@@ -39,6 +40,8 @@ import {
   Search,
 } from "@mui/icons-material";
 import { makeStyles } from "@mui/styles";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 /* eslint-disable-next-line */
 
@@ -706,9 +709,9 @@ export function CustomMatTable(props: CustomMatTableProps) {
                                   onClick={(e) => toggleRowAccordian(e, _row)}
                                 >
                                   {_row.expanded ? (
-                                    <ArrowUpward />
+                                    <ExpandLessIcon />
                                   ) : (
-                                    <ArrowDownward />
+                                    <ExpandMoreIcon />
                                   )}
                                 </IconButton>
                               </Tooltip>

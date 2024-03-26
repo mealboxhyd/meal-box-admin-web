@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { TimeSheetState, timeSheetsSlice } from "./slices/slice";
 import CustomCard from "../../sharedComponents/CustomCard";
 import { Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import CustomDialog from "../../sharedComponents/CustomDialog";
@@ -14,7 +13,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditIcon from "@mui/icons-material/Edit";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import { useNavigate } from "react-router-dom";
-import { EMPLOYEE_TIME_SHEET } from "../../constants/route.constants";
+import { usersSlice, usersState } from "./slices/slice";
 
 const cellStyle = {
   whiteSpace: "nowrap",
@@ -22,17 +21,17 @@ const cellStyle = {
   paddingBottom: 5,
 };
 
-export default function TimeSheets() {
+export default function UsersDashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { sampleData } = useSelector(TimeSheetState);
+  const { sampleData } = useSelector(usersState);
   const [openProjectModal, setOpenProjectModal] = useState(false);
 
   console.log(sampleData, "[sampleData]");
 
   useEffect(() => {
-    dispatch(timeSheetsSlice.actions.fetchSampleData());
+    dispatch(usersSlice.actions.fetchSampleData());
   }, []);
 
   const handleSave = () => {
@@ -89,7 +88,7 @@ export default function TimeSheets() {
       field: "actions",
       title: "Actions",
       align: "center",
-      render: (row: any) => (
+      render: () => (
         <Box>
           <Tooltip title="View">
             <IconButton>
@@ -107,7 +106,7 @@ export default function TimeSheets() {
             </IconButton>
           </Tooltip>
           <Tooltip title="View time sheets">
-            <IconButton onClick={() => navigate(EMPLOYEE_TIME_SHEET)}>
+            <IconButton>
               <ScheduleIcon style={{ color: "#9D2CC5" }} />
             </IconButton>
           </Tooltip>

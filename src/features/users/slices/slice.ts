@@ -1,19 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from "@reduxjs/toolkit";
 
-interface TimeSheetProps {
+interface UsersProps {
   welcomeMessage: string;
   sampleData: any[];
   isLoading: boolean;
+  name?: string ;
 }
 
 const initialState = {
   welcomeMessage: "",
   sampleData: [],
   isLoading: false,
-} as TimeSheetProps;
+  name : ''
+} as UsersProps;
 
-const timeSheetsSlice = createSlice({
+const usersSlice = createSlice({
   name: "timeSheet",
   initialState,
   reducers: {
@@ -33,6 +35,6 @@ const timeSheetsSlice = createSlice({
   },
 });
 
-const TimeSheetState = (state: any) => state.timeSheets;
+const usersState = (state: any) => state.users;
 
-export { TimeSheetState, timeSheetsSlice };
+export { usersState, usersSlice };

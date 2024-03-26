@@ -22,12 +22,13 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import RoomPreferencesIcon from "@mui/icons-material/RoomPreferences";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
+import LunchDiningIcon from "@mui/icons-material/LunchDining";
+import DiningIcon from "@mui/icons-material/Dining";
+import LocalMallIcon from "@mui/icons-material/LocalMall";
+import TouchAppIcon from "@mui/icons-material/TouchApp";
+import GroupIcon from "@mui/icons-material/Group";
 
 const drawerWidth = 240;
 
@@ -35,34 +36,38 @@ const LEFT_NAV_OPTIONS = [
   {
     label: "Home",
     value: "home",
-    icon: <HomeIcon style={{ color: "#048BD0", fontSize: "30px" }} />,
+    icon: <HomeIcon style={{ color: "#F5BE00", fontSize: "30px" }} />,
     path: "/",
   },
   {
-    label: "Inventory",
-    value: "inventory",
-    icon: (
-      <RoomPreferencesIcon style={{ color: "#AD4AD0", fontSize: "30px" }} />
-    ),
-    path: "/inventory",
+    label: "Subscriptions",
+    value: "subscriptions",
+    icon: <TouchAppIcon style={{ color: "#f73378", fontSize: "30px" }} />,
+    path: "/subscriptions",
   },
   {
-    label: "Billing",
-    value: "billing",
-    icon: <MonetizationOnIcon style={{ color: "#00BFA5", fontSize: "30px" }} />,
-    path: "billing",
+    label: "Orders",
+    value: "orders",
+    icon: <LocalMallIcon style={{ color: "#00e676", fontSize: "30px" }} />,
+    path: "/orders",
   },
   {
-    label: "Invoice",
-    value: "invoice",
-    icon: <RequestQuoteIcon style={{ color: "#E91E63", fontSize: "30px" }} />,
-    path: "invoice",
+    label: "Meals",
+    value: "meals",
+    icon: <LunchDiningIcon style={{ color: "#ff5722", fontSize: "30px" }} />,
+    path: "/meals",
   },
   {
-    label: "Time Sheets",
-    value: "timeSheets",
-    icon: <EventAvailableIcon style={{ color: "#0091EA", fontSize: "30px" }} />,
-    path: "timeSheets",
+    label: "Kitchens",
+    value: "kitchens",
+    icon: <DiningIcon style={{ color: "#00b0ff", fontSize: "30px" }} />,
+    path: "/kitchens",
+  },
+  {
+    label: "Users",
+    value: "users",
+    icon: <GroupIcon style={{ color: "#ba68c8", fontSize: "30px" }} />,
+    path: "/users",
   },
 ];
 
@@ -142,6 +147,9 @@ export default function Layout() {
   const [open, setOpen] = React.useState(false);
   const [selectedPage, setSelectedPage] = React.useState("/");
   const navigate = useNavigate();
+  const params = useParams();
+  const url = window.location.href;
+
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
@@ -165,6 +173,22 @@ export default function Layout() {
     navigate(path);
     setSelectedPage(path);
   };
+
+  React.useEffect(() => {
+    console.log(url, "[url]");
+    if (url.includes("/kitchens")) {
+      setSelectedPage("/kitchens");
+    } else if (url.includes("/meals")) {
+      setSelectedPage("/meals");
+    } else if (url.includes("/users")) {
+      setSelectedPage("/users");
+    } else if (url.includes("/subscriptions")) {
+      setSelectedPage("/subscriptions");
+    } else if (url.includes("/orders")) {
+      setSelectedPage("/orders");
+    }
+  }, [url]);
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -191,16 +215,16 @@ export default function Layout() {
               component="div"
               style={{ marginTop: "0.3rem" }}
             >
-              Plant Ship
+              MealBox
             </Typography>
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <PersonOutlineIcon style={{ color: "#fff" }} />
-              </IconButton>
-            </Tooltip>
+            {/* <Tooltip title="Open settings"> */}
+            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              <PersonOutlineIcon style={{ color: "#fff" }} />
+            </IconButton>
+            {/* </Tooltip> */}
             <Menu
               sx={{ mt: "45px" }}
               id="menu-appbar"
@@ -254,12 +278,12 @@ export default function Layout() {
                 }}
                 style={{
                   borderLeft:
-                    selectedPage === option.path ? "5px solid #089DE4" : "",
+                    selectedPage === option.path ? "5px solid #F5BE00" : "",
                   backgroundColor:
                     selectedPage === option.path ? "#4A5961" : "transparent",
                 }}
               >
-                <Tooltip title={option.label}>
+                <Tooltip title={option.label} placement="right">
                   <ListItemIcon
                     sx={{
                       minWidth: 0,

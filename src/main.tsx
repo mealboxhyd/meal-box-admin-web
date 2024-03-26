@@ -11,7 +11,7 @@ saga.run(RootSaga);
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#005A9A",
+      main: "#F5BE00",
     },
     secondary: {
       main: "#3B5166",

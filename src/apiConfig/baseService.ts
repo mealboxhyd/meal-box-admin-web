@@ -13,8 +13,15 @@ const accessToken = userInfoParsedObject?.jwtToken?.accessToken;
 
 const config = {
   headers: {
-    Authorization: `Bearer ${accessToken}`,
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWNhMDcwYTA5MTFkZTA5OTQwYTNmODgiLCJ1c2VyVHlwZSI6InVzZXIiLCJpYXQiOjE3MTEzNzcwMDEsImV4cCI6MTcxMTk4MTgwMX0.s3oWWxhdxOyF-VzFfSEHMCtvQE6-yOstmqgugsHMXbc`,
   },
+};
+
+const getImageUrlFromCloudinary = (data: any) => {
+  return fetch("https://api.cloudinary.com/v1_1/da8jktqmk/image/upload", {
+    method: "post",
+    body: data,
+  }).then((res) => res.json());
 };
 
 const fetchData = async (paramUrl: string) => {
@@ -57,4 +64,10 @@ const deleteData = async (paramUrl: string) => {
   return response.data;
 };
 
-export { fetchData, postData, updateData, deleteData };
+export {
+  fetchData,
+  postData,
+  updateData,
+  deleteData,
+  getImageUrlFromCloudinary,
+};

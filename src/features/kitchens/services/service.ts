@@ -20,14 +20,18 @@ export class KitchensService {
   };
 
   static deleteKitchen = (id: string) => {
-    return deleteData((KITCHEN_CONSTANTS.PARAM_URL.KITCHENS_BY_ID, id));
+    return deleteData(KITCHEN_CONSTANTS.PARAM_URL.KITCHENS_BY_ID, [id]);
   };
 
-  static createKitchen = (id: string, req: any) => {
-    return postData((KITCHEN_CONSTANTS.PARAM_URL.KICTHENS, id), req);
+  static createKitchen = (req: any) => {
+    return postData(KITCHEN_CONSTANTS.PARAM_URL.KICTHENS, req);
   };
 
   static fetchPlans = () => {
     return fetchData(KITCHEN_CONSTANTS.PARAM_URL.PLANS);
+  };
+
+  static fetchMealsByKitchenId = (kitchenId: string) => {
+    return fetchData(KITCHEN_CONSTANTS.PARAM_URL.MEALS, [kitchenId]);
   };
 }

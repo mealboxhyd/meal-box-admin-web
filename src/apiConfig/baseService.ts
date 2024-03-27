@@ -24,41 +24,66 @@ const getImageUrlFromCloudinary = (data: any) => {
   }).then((res) => res.json());
 };
 
-const fetchData = async (paramUrl: string) => {
+const setParams = (endPoint: string, params: string[]) => {
+  let pEndPoint = endPoint;
+
+  if (endPoint) {
+    params?.forEach((param, i) => {
+      pEndPoint = pEndPoint.replace(`@${i}`, param);
+    });
+  }
+  return pEndPoint;
+};
+
+const fetchData = async (endpoint: string, params?: any) => {
   const baseURL = import.meta.env.VITE_BASE_API_URL;
   let apiUrl = baseURL;
-  if (paramUrl) {
-    apiUrl = baseURL + paramUrl;
+  if (endpoint) {
+    apiUrl = baseURL + endpoint;
+  }
+  if (params?.length > 0) {
+    apiUrl = setParams(apiUrl, params);
   }
   const response = await axios.get(apiUrl, config);
   return response.data;
 };
 
-const postData = async (paramUrl: string, request: any) => {
+const postData = async (endpoint: string, request: any, params?: any) => {
   const baseURL = import.meta.env.VITE_BASE_API_URL;
   let apiUrl = baseURL;
-  if (paramUrl) {
-    apiUrl = baseURL + paramUrl;
+  if (endpoint) {
+    apiUrl = baseURL + endpoint;
+  }
+  if (params?.length > 0) {
+    apiUrl = setParams(apiUrl, params);
   }
   const response = await axios.post(apiUrl, request, config);
   return response.data;
 };
 
-const updateData = async (paramUrl: string, request: any) => {
+const updateData = async (endpoint: string, request: any, params?: any) => {
   const baseURL = import.meta.env.VITE_BASE_API_URL;
   let apiUrl = baseURL;
-  if (paramUrl) {
-    apiUrl = baseURL + paramUrl;
+  if (endpoint) {
+    apiUrl = baseURL + endpoint;
+  }
+  if (params?.length > 0) {
+    apiUrl = setParams(apiUrl, params);
   }
   const response = await axios.put(apiUrl, request, config);
   return response.data;
 };
 
-const deleteData = async (paramUrl: string) => {
+const deleteData = async (endpoint: string, params?: any) => {
+  console.log(endpoint, "[endpoint]");
+  console.log(params, "[params]");
   const baseURL = import.meta.env.VITE_BASE_API_URL;
   let apiUrl = baseURL;
-  if (paramUrl) {
-    apiUrl = baseURL + paramUrl;
+  if (endpoint) {
+    apiUrl = baseURL + endpoint;
+  }
+  if (params?.length > 0) {
+    apiUrl = setParams(apiUrl, params);
   }
   const response = await axios.delete(apiUrl, config);
   return response.data;

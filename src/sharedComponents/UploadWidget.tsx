@@ -30,17 +30,21 @@ const UploadWidget = () => {
             })
           );
         } else {
-          const imageUrls = result?.info?.files.map(
+          const imageUrls = result?.info?.files?.map(
             (file: any) => file.uploadInfo.url
           );
-          dispatch(kicthensSlice.actions.storeKitchenImagesSuccess(imageUrls));
-          dispatch(
-            homeSlice.actions.storeSnackbarData({
-              message: "Successfully uploaded the images",
-              open: true,
-              severity: "success",
-            })
-          );
+          if (imageUrls) {
+            dispatch(
+              kicthensSlice.actions.storeKitchenImagesSuccess(imageUrls)
+            );
+            dispatch(
+              homeSlice.actions.storeSnackbarData({
+                message: "Successfully uploaded the images",
+                open: true,
+                severity: "success",
+              })
+            );
+          }
         }
       }
     );

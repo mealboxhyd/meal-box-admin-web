@@ -12,7 +12,7 @@ import UsersDashboard from "./features/users/UsersDashboard";
 import { useDispatch, useSelector } from "react-redux";
 import { homeSlice, homeState } from "./features/home/slices/slice";
 import CloseIcon from "@mui/icons-material/Close";
-import React from "react";
+import React, { useEffect } from "react";
 
 function App() {
   const { snackBarData } = useSelector(homeState);
@@ -21,6 +21,14 @@ function App() {
   const handleClose = () => {
     dispatch(homeSlice.actions.resetSnackbarData());
   };
+
+  useEffect(() => {
+    if (snackBarData?.open) {
+      setTimeout(() => {
+        handleClose();
+      }, 6000);
+    }
+  }, [snackBarData]);
 
   const action = (
     <React.Fragment>

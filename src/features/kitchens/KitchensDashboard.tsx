@@ -28,8 +28,37 @@ const cellStyle = {
 
 export default function KitchensDashboard() {
   const dispatch = useDispatch();
-  const { isLoading, kitchens } = useSelector(kitchensState);
-  const [openDialog, setOpenDialog] = useState(false);
+  const { isLoading, kitchens, kitchenModal } = useSelector(kitchensState);
+  const [formState, setFormState]: any = useState({
+    name: "",
+    description: "",
+    bannerImage: "",
+    images: "",
+    meals: [],
+    contact: [],
+    location: {
+      houseNo: "",
+      addressLine1: "",
+      addressLine2: "",
+      city: "Hyderabad",
+      state: "Telangana",
+      pincode: "",
+      country: "India",
+    },
+    startingPrice: 0,
+    availablePlans: [],
+    discounts: [],
+    openingHours: "",
+    closingHours: "",
+    type: [],
+    badges: [],
+    searchTags: [],
+    paymentsAccepted: [],
+  });
+  const [deletKitchen, setDeleteKitchen]: any = useState({
+    open: false,
+    kitchen: {},
+  });
 
   useEffect(() => {
     fetchKitchens();
@@ -92,7 +121,7 @@ export default function KitchensDashboard() {
       title: "Avg Rating",
       align: "center",
       render: (row: any) => (
-        <CustomChip label={row.avgRating} status="completed" />
+        <CustomChip label={row.avgRating || "N.A"} status="completed" />
       ),
       cellStyle: {
         maxWidth: 300,
@@ -123,7 +152,7 @@ export default function KitchensDashboard() {
       field: "actions",
       title: "Actions",
       align: "center",
-      render: () => (
+      render: (row) => (
         <Box>
           <Tooltip title="View">
             <IconButton>
@@ -136,7 +165,9 @@ export default function KitchensDashboard() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Delete">
-            <IconButton>
+            <IconButton
+              onClick={() => setDeleteKitchen({ open: true, kitchen: row })}
+            >
               <DeleteOutlineIcon style={{ color: "#E91E63" }} />
             </IconButton>
           </Tooltip>
@@ -171,7 +202,7 @@ export default function KitchensDashboard() {
           {row.availablePlans.map((plan: any) => {
             return (
               <span style={{ paddingLeft: "2px" }}>
-                <CustomChip status="new" label={plan.name} />
+                <CustomChip status="default" label={plan.name} />
               </span>
             );
           })}
@@ -184,7 +215,7 @@ export default function KitchensDashboard() {
           {row.meals.map((meal: any) => {
             return (
               <span key={meal._id} style={{ paddingLeft: "2px" }}>
-                <CustomChip status="info" label={meal.name} />
+                <CustomChip status="default" label={meal.name} />
               </span>
             );
           })}
@@ -207,25 +238,106 @@ export default function KitchensDashboard() {
     fetchKitchens();
   };
 
+  const handleCbData = (data: any) => {
+    setFormState(data);
+  };
+
+  const handleSaveKitchen = () => {
+    dispatch(kicthensSlice.actions.createKitchen(formState));
+  };
+
+  const getDisabledStatusFOrSave = () => {
+    const {
+      name,
+      description,
+      contact,
+      location,
+      paymentsAccepted,
+      bannerImage,
+      availablePlans,
+      type,
+    } = formState || {};
+    return !(
+      name &&
+      description &&
+      contact &&
+      location &&
+      paymentsAccepted &&
+      bannerImage &&
+      availablePlans &&
+      type
+    );
+  };
+
+  const handleDeleteKitchen = () => {
+    dispatch(kicthensSlice.actions.deleteKitchen(deletKitchen?.kitchen?._id));
+    setDeleteKitchen({ open: false, kitchen: {} });
+  };
+
+  console.log(formState, "FORM STATE");
+
   return (
     <div>
       <CustomeLoader open={isLoading} />
+
       <CustomDialog
-        open={openDialog}
-        content={<AddEditKitchen />}
-        title="Add Kitchen"
-        handleClose={() => setOpenDialog(false)}
+        open={deletKitchen?.open}
+        content={
+          <Typography>
+            Are you sure you want to delete this{" "}
+            <strong>{deletKitchen?.kitchen?.name}</strong>?
+          </Typography>
+        }
+        title="Delete Kitchen"
+        handleClose={() => setDeleteKitchen({ open: false })}
         actions={
           <Box>
             <Button
               color="secondary"
               style={{ marginRight: "0.5rem" }}
               variant="outlined"
+              onClick={() => setDeleteKitchen({ open: false })}
             >
               Cancel
             </Button>
 
-            <Button color="primary" variant="contained">
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={() => handleDeleteKitchen()}
+            >
+              Delete
+            </Button>
+          </Box>
+        }
+      />
+
+      <CustomDialog
+        open={kitchenModal}
+        content={<AddEditKitchen handleCbData={handleCbData} />}
+        title="Add Kitchen"
+        handleClose={() =>
+          dispatch(kicthensSlice.actions.handleKitchenModal(false))
+        }
+        actions={
+          <Box>
+            <Button
+              color="secondary"
+              style={{ marginRight: "0.5rem" }}
+              variant="outlined"
+              onClick={() =>
+                dispatch(kicthensSlice.actions.handleKitchenModal(false))
+              }
+            >
+              Cancel
+            </Button>
+
+            <Button
+              color="primary"
+              variant="contained"
+              disabled={getDisabledStatusFOrSave()}
+              onClick={() => handleSaveKitchen()}
+            >
               Save
             </Button>
           </Box>
@@ -245,7 +357,9 @@ export default function KitchensDashboard() {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => setOpenDialog(true)}
+              onClick={() =>
+                dispatch(kicthensSlice.actions.handleKitchenModal(true))
+              }
             >
               New Kitchen
             </Button>
@@ -264,7 +378,7 @@ export default function KitchensDashboard() {
             emptyRecordsMessage={"No records found "}
             enableSearchBar={true}
             enableFilterByFields={true}
-            rowIdentifier={"usr_ref_key"}
+            rowIdentifier={"_id"}
             hasAccordianRows={true}
             renderAccordian={AccordianContent}
           />

@@ -36,32 +36,70 @@ function* fetchKitchenPlansAction(): any {
   }
 }
 
-function* actionFetchImageUrl(): any {
+function* getMealsByKitchenIdAction(): any {
   try {
-    const { kitchenImages } = yield select(kitchensState);
-    const fileStore: any = [];
-    // eslint-disable-next-line prefer-spread
-    fileStore.push.apply(fileStore, kitchenImages);
-
-    const results = yield all(
-      fileStore.map((file: any) => {
-        const data = new FormData();
-        data.append("file", file);
-        data.append("upload_preset", "da8jktqmk");
-        data.append("cloud_name", "da8jktqmk");
-        return call(getImageUrlFromCloudinary, data);
-      })
+    // const {} =
+    const results = yield call(
+      KitchensService.fetchMealsByKitchenId,
+      "65c9ee1a69a51c6295ebdf28"
     );
-    yield put(
-      kicthensSlice.actions.storeKitchenImagesSuccess(
-        results.map((image: any) => image.url)
-      )
-    );
+    yield put(kicthensSlice.actions.getMealsByKitchenIdSuccess(results));
   } catch (e) {
-    yield put(kicthensSlice.actions.storeKitchenImagesFailure());
+    console.log(e, "[error]");
+    yield put(kicthensSlice.actions.getMealsByKitchenIdFailure());
     yield put(
       homeSlice.actions.storeSnackbarData({
-        message: "Failed to uplaod images",
+        message: "Failed to fetch kitchen meals",
+        open: true,
+        severity: "error",
+      })
+    );
+  }
+}
+
+function* createKitchenAction(): any {
+  const { kitchenRequest } = yield select(kitchensState);
+  try {
+    yield call(KitchensService.createKitchen, kitchenRequest);
+    yield put(kicthensSlice.actions.createKitchenSuccess());
+    yield put(
+      homeSlice.actions.storeSnackbarData({
+        message: `${kitchenRequest.name} is created successfully`,
+        open: true,
+        severity: "success",
+      })
+    );
+    yield put(kicthensSlice.actions.fetchKitchens());
+  } catch (e) {
+    yield put(kicthensSlice.actions.createKitchenFailure());
+    yield put(
+      homeSlice.actions.storeSnackbarData({
+        message: `Failed to create kitchen ${kitchenRequest.name}`,
+        open: true,
+        severity: "error",
+      })
+    );
+  }
+}
+
+function* deleteKitchenAction(): any {
+  const { deleteKitchenId } = yield select(kitchensState);
+  try {
+    yield call(KitchensService.deleteKitchen, deleteKitchenId);
+    yield put(kicthensSlice.actions.deleteKitchenSuccess());
+    yield put(
+      homeSlice.actions.storeSnackbarData({
+        message: `Kitchen is deleted successfully`,
+        open: true,
+        severity: "success",
+      })
+    );
+    yield put(kicthensSlice.actions.fetchKitchens());
+  } catch (e) {
+    yield put(kicthensSlice.actions.createKitchenFailure());
+    yield put(
+      homeSlice.actions.storeSnackbarData({
+        message: `Failed to create kitchen`,
         open: true,
         severity: "error",
       })
@@ -80,11 +118,25 @@ function* fetchKitchenPlansSaga() {
   );
 }
 
-function* getCloudinaryImageUrl() {
+function* getMealsByKitchenIdSaga() {
   yield takeEvery(
-    kicthensSlice.actions.storeKitchenImages,
-    actionFetchImageUrl
+    kicthensSlice.actions.getMealsByKitchenId,
+    getMealsByKitchenIdAction
   );
 }
 
-export { fetchKitchensSaga, fetchKitchenPlansSaga, getCloudinaryImageUrl };
+function* createKitchenSaga() {
+  yield takeEvery(kicthensSlice.actions.createKitchen, createKitchenAction);
+}
+
+function* deleteKitchenSaga() {
+  yield takeEvery(kicthensSlice.actions.deleteKitchen, deleteKitchenAction);
+}
+
+export {
+  fetchKitchensSaga,
+  fetchKitchenPlansSaga,
+  getMealsByKitchenIdSaga,
+  createKitchenSaga,
+  deleteKitchenSaga,
+};

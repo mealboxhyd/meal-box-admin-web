@@ -14,12 +14,8 @@ const statusColorMap = {
     backgroundColor: "#F3E6F8",
     borderColor: "#E2C0EE",
   },
-  pending: {
-    backgroundColor: "#FFF176",
-    borderColor: "#FDD835",
-  },
-  running: {
-    backgroundColor: "#ffe0b2",
+  primary: {
+    backgroundColor: "#F5BE00",
     borderColor: "#ff9800",
   },
   failed: {
@@ -34,10 +30,11 @@ const statusColorMap = {
     backgroundColor: "#B4E6FB",
     borderColor: "#0091EA",
   },
+  default: {},
 };
 export interface CustomStatusBadgeProps {
   label: string;
-  status: "new" | "pending" | "running" | "failed" | "completed" | "info";
+  status: "new" | "primary" | "failed" | "completed" | "info" | "default";
   labelText?: "uppercase" | "capitalize" | "lowercase";
   disableLetterSpacing?: boolean;
   marginTop?: string;

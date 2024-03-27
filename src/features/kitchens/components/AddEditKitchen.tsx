@@ -1,4 +1,8 @@
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Autocomplete,
   Box,
   Button,
   Chip,
@@ -10,8 +14,9 @@ import {
   Select,
   Slide,
   TextField,
+  Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { kicthensSlice, kitchensState } from "../slices/slice";
 import CustomeLoader from "../../../sharedComponents/CUstomLoader";
@@ -22,6 +27,7 @@ import UploadWidget from "../../../sharedComponents/UploadWidget";
 import { BackgroundImage } from "../../../sharedComponents/BackgroundImage";
 import { makeStyles } from "@mui/styles";
 import CustomChip from "../../../sharedComponents/CustomChip";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -37,7 +43,7 @@ const MenuProps = {
 function getStyles(name: string, personName: readonly string[], theme: Theme) {
   return {
     fontWeight:
-      personName.indexOf(name) === -1
+      personName?.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
@@ -60,33 +66,25 @@ const useStyles = makeStyles({
   },
 });
 
-export const AddEditKitchen = () => {
+interface AddEditKitchenProps {
+  handleCbData: any;
+}
+
+export const AddEditKitchen = (props: AddEditKitchenProps) => {
   const dispatch = useDispatch();
   const classes = useStyles();
   const { isLoading, plans, kitchenImageUrls } = useSelector(kitchensState);
   const theme = useTheme();
   const [bannerImage, setBannerImage] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [formState, setFormState] = useState({
-    name: "",
-    description: "",
-    bannerImage: "",
-    images: "",
-    meals: [],
-    contact: [],
-    address: {},
-    startingPrice: 0,
-    availablePlans: [],
-    discounts: [],
-    openingHours: "",
-    closingHours: "",
-    type: [],
-    badges: [],
-    searchTags: [],
-  });
+  const [formState, setFormState]: any = useState(null);
+  const [selectedPlans, setSelectedPlans] = useState([]);
+  const [kitchenTypes, setKitchenTypes] = useState([]);
+  const [paymentOptions, setPaymentOptions] = useState([]);
 
   useEffect(() => {
     dispatch(kicthensSlice.actions.fetchKitchenPlans());
+    dispatch(kicthensSlice.actions.getMealsByKitchenId());
   }, []);
 
   const handleFormState = (value: any, field: string) => {
@@ -107,6 +105,29 @@ export const AddEditKitchen = () => {
     setFormState({ ...formState, bannerImage: image });
   };
 
+  const handleAddressChange = (value: string, field: string) => {
+    setFormState({
+      ...formState,
+      location: {
+        ...formState?.location,
+        [field]: value,
+      },
+    });
+  };
+
+  useEffect(() => {
+    props.handleCbData(formState);
+  }, [formState]);
+
+  useEffect(() => {
+    setFormState({
+      ...formState,
+      availablePlans: selectedPlans,
+      type: kitchenTypes,
+      paymentsAccepted: paymentOptions,
+    });
+  }, [selectedPlans, paymentOptions, kitchenTypes]);
+
   console.log(formState, "[form state]");
 
   return (
@@ -117,7 +138,7 @@ export const AddEditKitchen = () => {
           <TextField
             fullWidth
             label="Kitchen Name"
-            value={formState.name}
+            value={formState?.name}
             onChange={(e) => handleFormState(e.target.value, "name")}
           />
         </Grid>
@@ -125,77 +146,233 @@ export const AddEditKitchen = () => {
           <TextField
             fullWidth
             label="Description"
-            value={formState.description}
+            value={formState?.description}
             onChange={(e) => handleFormState(e.target.value, "description")}
           />
         </Grid>
         <Grid item xs={6}>
           <FormControl fullWidth>
-            <InputLabel id="demo-multiple-chip-label">Plans</InputLabel>
-            <Select
-              fullWidth
-              labelId="demo-multiple-chip-label"
-              id="demo-multiple-chip"
+            <Autocomplete
+              size="medium"
               multiple
-              value={formState.availablePlans}
-              onChange={(e) =>
-                handleFormState(e.target.value, "availablePlans")
-              }
-              variant="standard"
-              input={<OutlinedInput id="select-multiple-chip" label="Plans" />}
-              renderValue={(selected) => (
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                  {selected.map((value) => (
-                    <Chip key={value} label={value} />
-                  ))}
-                </Box>
+              value={formState?.availablePlans || []}
+              // defaultValue={value}
+              onChange={(event, newValue: any) => {
+                setSelectedPlans(newValue);
+              }}
+              selectOnFocus
+              clearOnBlur
+              handleHomeEndKeys
+              id="free-solo-with-text-demo"
+              options={plans}
+              getOptionLabel={(option) => {
+                if (typeof option === "string") {
+                  return option;
+                }
+                if (option.inputValue) {
+                  return option.inputValue;
+                }
+                return option.name;
+              }}
+              renderOption={(props, option) => (
+                <li {...props}>{option.name}</li>
               )}
-              MenuProps={MenuProps}
-            >
-              {plans.map((plan: any) => (
-                <MenuItem
-                  key={plan._id}
-                  value={plan.name}
-                  style={getStyles(plan.name, formState.availablePlans, theme)}
-                >
-                  {plan.name}
-                </MenuItem>
-              ))}
-            </Select>
+              freeSolo
+              renderInput={(params) => (
+                <TextField variant="outlined" {...params} label={"Plans"} />
+              )}
+            />
           </FormControl>
         </Grid>
         <Grid item xs={6}>
-          <FormControl fullWidth>
-            <InputLabel id="demo-multiple-chip-label">Type</InputLabel>
-            <Select
-              fullWidth
-              labelId="demo-multiple-chip-label"
-              id="demo-multiple-chip"
-              multiple
-              value={formState.type}
-              onChange={(e) => handleFormState(e.target.value, "type")}
-              variant="standard"
-              input={<OutlinedInput id="select-multiple-chip" label="Type" />}
-              renderValue={(selected) => (
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                  {selected.map((value) => (
-                    <Chip key={value} label={value} />
-                  ))}
-                </Box>
-              )}
-              MenuProps={MenuProps}
+          <Autocomplete
+            fullWidth
+            size="medium"
+            multiple
+            value={formState?.type || []}
+            // defaultValue={value}
+            onChange={(event, newValue: any) => {
+              setKitchenTypes(newValue);
+            }}
+            selectOnFocus
+            clearOnBlur
+            handleHomeEndKeys
+            id="free-solo-with-text-demo"
+            options={KITCHEN_LOOKUPS.KITCHEN_TYPES}
+            getOptionLabel={(option) => {
+              if (typeof option === "string") {
+                return option;
+              }
+              if (option.inputValue) {
+                return option.inputValue;
+              }
+              return option.label;
+            }}
+            renderOption={(props, option) => <li {...props}>{option.label}</li>}
+            freeSolo
+            renderInput={(params) => (
+              <TextField variant="outlined" {...params} label={"Type"} />
+            )}
+          />
+        </Grid>
+
+        <Grid item xs={6}>
+          <TextField
+            fullWidth
+            label="Search Tags"
+            placeholder="Use comma seperated text ,eg:- Veg,Thali,Non veg"
+            value={formState?.searchTags}
+            onChange={(e) => handleFormState(e.target.value, "searchTags")}
+          />
+        </Grid>
+
+        <Grid item xs={6}>
+          <Autocomplete
+            fullWidth
+            size="medium"
+            multiple
+            value={formState?.paymentsAccepted || []}
+            // defaultValue={value}
+            onChange={(event, newValue: any) => {
+              setPaymentOptions(newValue);
+            }}
+            selectOnFocus
+            clearOnBlur
+            handleHomeEndKeys
+            id="free-solo-with-text-demo"
+            options={KITCHEN_LOOKUPS.PAYMENTS_TYPES}
+            getOptionLabel={(option) => {
+              if (typeof option === "string") {
+                return option;
+              }
+              if (option.inputValue) {
+                return option.inputValue;
+              }
+              return option.label;
+            }}
+            renderOption={(props, option) => <li {...props}>{option.label}</li>}
+            freeSolo
+            renderInput={(params) => (
+              <TextField
+                variant="outlined"
+                {...params}
+                label={"Payment Options"}
+              />
+            )}
+          />
+        </Grid>
+
+        <Grid item xs={6}>
+          <TextField
+            fullWidth
+            label="Contact"
+            placeholder="Use comma seperated text ,eg:- 7779998882,8882228882"
+            value={formState?.contact}
+            onChange={(e) => handleFormState(e.target.value, "contact")}
+          />
+        </Grid>
+
+        <Grid item xs={6}>
+          <TextField
+            fullWidth
+            label="Badge"
+            placeholder="Eg:- Best Seller"
+            value={formState?.badges}
+            onChange={(e) => handleFormState(e.target.value, "badges")}
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Accordion defaultExpanded>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
             >
-              {KITCHEN_LOOKUPS.KITCHEN_TYPES.map((type: any) => (
-                <MenuItem
-                  key={type.value}
-                  value={type.label}
-                  style={getStyles(type.label, formState.type, theme)}
-                >
-                  {type.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+              <Typography>Address</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="House/ Flat no"
+                    placeholder="Eg:- Flat no :301"
+                    value={formState?.location?.houseNo}
+                    onChange={(e) =>
+                      handleAddressChange(e.target.value, "houseNo")
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="Address Line 1"
+                    placeholder="Eg:- Sitara Apartments , Rami reddy nagar"
+                    value={formState?.location?.addressLine1}
+                    onChange={(e) =>
+                      handleAddressChange(e.target.value, "addressLine1")
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="Address Line 2"
+                    placeholder="Eg:- Miyapur cross roads"
+                    value={formState?.location?.addressLine2}
+                    onChange={(e) =>
+                      handleAddressChange(e.target.value, "addressLine2")
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="City"
+                    placeholder="Eg:- Hyderabad"
+                    value={formState?.location?.city}
+                    onChange={(e) =>
+                      handleAddressChange(e.target.value, "city")
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="State"
+                    placeholder="Eg:- Telangana"
+                    value={formState?.location?.state}
+                    onChange={(e) =>
+                      handleAddressChange(e.target.value, "state")
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="Pincode"
+                    placeholder="Eg:- 522018"
+                    value={formState?.location?.pincode}
+                    onChange={(e) =>
+                      handleAddressChange(e.target.value, "pincode")
+                    }
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    fullWidth
+                    label="Country"
+                    placeholder="Eg:- 522018"
+                    value={formState?.location?.country}
+                    onChange={(e) =>
+                      handleAddressChange(e.target.value, "country")
+                    }
+                  />
+                </Grid>
+              </Grid>
+            </AccordionDetails>
+          </Accordion>
         </Grid>
 
         <Grid item xs={12}>
@@ -206,7 +383,7 @@ export const AddEditKitchen = () => {
             style={{ marginTop: "0.2rem" }}
             className={classes.root}
           >
-            {kitchenImageUrls.map((url: any, index: number) => {
+            {kitchenImageUrls?.map((url: any, index: number) => {
               return (
                 <Grid
                   item
@@ -219,7 +396,7 @@ export const AddEditKitchen = () => {
                     height="180px"
                   />
                   <div className={classes.activeThumbnail}>
-                    {formState.bannerImage === url && (
+                    {formState?.bannerImage === url && (
                       <CustomChip label="Banner Image" status="completed" />
                     )}
                   </div>
@@ -245,8 +422,6 @@ export const AddEditKitchen = () => {
             })}
           </Grid>
         </Grid>
-
-        <Grid item xs={6}></Grid>
       </Grid>
     </div>
   );

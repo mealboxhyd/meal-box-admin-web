@@ -33,7 +33,7 @@ export default function KitchensDashboard() {
     name: "",
     description: "",
     bannerImage: "",
-    images: "",
+    images: [],
     meals: [],
     contact: [],
     location: {
@@ -67,6 +67,8 @@ export default function KitchensDashboard() {
   const fetchKitchens = () => {
     dispatch(kicthensSlice.actions.fetchKitchens());
   };
+
+  const handleEditKitchen = () => {};
 
   const constructColumns = () => {
     const columns: any[] = [];
@@ -152,7 +154,7 @@ export default function KitchensDashboard() {
       field: "actions",
       title: "Actions",
       align: "center",
-      render: (row) => (
+      render: (row: any) => (
         <Box>
           <Tooltip title="View">
             <IconButton>
@@ -160,7 +162,11 @@ export default function KitchensDashboard() {
             </IconButton>
           </Tooltip>
           <Tooltip title="Edit">
-            <IconButton>
+            <IconButton
+              onClick={() =>
+                dispatch(kicthensSlice.actions.getKitchenInfoById(row))
+              }
+            >
               <EditIcon style={{ color: "#00BFA5" }} />
             </IconButton>
           </Tooltip>
@@ -243,7 +249,11 @@ export default function KitchensDashboard() {
   };
 
   const handleSaveKitchen = () => {
-    dispatch(kicthensSlice.actions.createKitchen(formState));
+    if (formState?._id) {
+      dispatch(kicthensSlice.actions.editKitchen(formState));
+    } else {
+      dispatch(kicthensSlice.actions.createKitchen(formState));
+    }
   };
 
   const getDisabledStatusFOrSave = () => {
@@ -315,7 +325,7 @@ export default function KitchensDashboard() {
       <CustomDialog
         open={kitchenModal}
         content={<AddEditKitchen handleCbData={handleCbData} />}
-        title="Add Kitchen"
+        title={`${formState?._id ? "Edit" : "Add"} Kitchen`}
         handleClose={() =>
           dispatch(kicthensSlice.actions.handleKitchenModal(false))
         }

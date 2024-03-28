@@ -3,15 +3,9 @@ import {
   AccordionDetails,
   AccordionSummary,
   Autocomplete,
-  Box,
   Button,
-  Chip,
   FormControl,
   Grid,
-  InputLabel,
-  MenuItem,
-  OutlinedInput,
-  Select,
   Slide,
   TextField,
   Typography,
@@ -20,7 +14,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { kicthensSlice, kitchensState } from "../slices/slice";
 import CustomeLoader from "../../../sharedComponents/CUstomLoader";
-import { Theme, useTheme } from "@mui/material/styles";
 import { KITCHEN_LOOKUPS } from "../constants/constants";
 import ImageIcon from "@mui/icons-material/Image";
 import UploadWidget from "../../../sharedComponents/UploadWidget";
@@ -28,26 +21,6 @@ import { BackgroundImage } from "../../../sharedComponents/BackgroundImage";
 import { makeStyles } from "@mui/styles";
 import CustomChip from "../../../sharedComponents/CustomChip";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
-function getStyles(name: string, personName: readonly string[], theme: Theme) {
-  return {
-    fontWeight:
-      personName?.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  };
-}
 
 const useStyles = makeStyles({
   root: {
@@ -73,8 +46,8 @@ interface AddEditKitchenProps {
 export const AddEditKitchen = (props: AddEditKitchenProps) => {
   const dispatch = useDispatch();
   const classes = useStyles();
-  const { isLoading, plans, kitchenImageUrls } = useSelector(kitchensState);
-  const theme = useTheme();
+  const { isLoading, plans, kitchenImageUrls, kitchenInfo } =
+    useSelector(kitchensState);
   const [bannerImage, setBannerImage] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [formState, setFormState]: any = useState(null);
@@ -86,6 +59,15 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
     dispatch(kicthensSlice.actions.fetchKitchenPlans());
     dispatch(kicthensSlice.actions.getMealsByKitchenId());
   }, []);
+
+  useEffect(() => {
+    if (kitchenInfo?._id) {
+      setFormState(kitchenInfo);
+      setSelectedPlans(kitchenInfo?.availablePlans);
+      setKitchenTypes(kitchenInfo?.type);
+      setPaymentOptions(kitchenInfo?.paymentsAccepted);
+    }
+  }, [kitchenInfo, kitchenImageUrls]);
 
   const handleFormState = (value: any, field: string) => {
     setFormState({ ...formState, [field]: value });
@@ -102,7 +84,11 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
   };
 
   const handleBannerImage = (image: string) => {
-    setFormState({ ...formState, bannerImage: image });
+    setFormState({
+      ...formState,
+      bannerImage: image,
+      images: kitchenImageUrls,
+    });
   };
 
   const handleAddressChange = (value: string, field: string) => {
@@ -138,7 +124,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
           <TextField
             fullWidth
             label="Kitchen Name"
-            value={formState?.name}
+            value={formState?.name || ""}
             onChange={(e) => handleFormState(e.target.value, "name")}
           />
         </Grid>
@@ -146,7 +132,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
           <TextField
             fullWidth
             label="Description"
-            value={formState?.description}
+            value={formState?.description || ""}
             onChange={(e) => handleFormState(e.target.value, "description")}
           />
         </Grid>
@@ -156,7 +142,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
               size="medium"
               multiple
               value={formState?.availablePlans || []}
-              // defaultValue={value}
+              defaultValue={formState?.availablePlans}
               onChange={(event, newValue: any) => {
                 setSelectedPlans(newValue);
               }}
@@ -190,7 +176,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
             size="medium"
             multiple
             value={formState?.type || []}
-            // defaultValue={value}
+            defaultValue={formState?.type}
             onChange={(event, newValue: any) => {
               setKitchenTypes(newValue);
             }}
@@ -221,7 +207,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
             fullWidth
             label="Search Tags"
             placeholder="Use comma seperated text ,eg:- Veg,Thali,Non veg"
-            value={formState?.searchTags}
+            value={formState?.searchTags || ""}
             onChange={(e) => handleFormState(e.target.value, "searchTags")}
           />
         </Grid>
@@ -267,7 +253,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
             fullWidth
             label="Contact"
             placeholder="Use comma seperated text ,eg:- 7779998882,8882228882"
-            value={formState?.contact}
+            value={formState?.contact || ""}
             onChange={(e) => handleFormState(e.target.value, "contact")}
           />
         </Grid>
@@ -277,7 +263,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
             fullWidth
             label="Badge"
             placeholder="Eg:- Best Seller"
-            value={formState?.badges}
+            value={formState?.badges || ""}
             onChange={(e) => handleFormState(e.target.value, "badges")}
           />
         </Grid>
@@ -298,7 +284,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
                     fullWidth
                     label="House/ Flat no"
                     placeholder="Eg:- Flat no :301"
-                    value={formState?.location?.houseNo}
+                    value={formState?.location?.houseNo || ""}
                     onChange={(e) =>
                       handleAddressChange(e.target.value, "houseNo")
                     }
@@ -309,7 +295,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
                     fullWidth
                     label="Address Line 1"
                     placeholder="Eg:- Sitara Apartments , Rami reddy nagar"
-                    value={formState?.location?.addressLine1}
+                    value={formState?.location?.addressLine1 || ""}
                     onChange={(e) =>
                       handleAddressChange(e.target.value, "addressLine1")
                     }
@@ -320,7 +306,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
                     fullWidth
                     label="Address Line 2"
                     placeholder="Eg:- Miyapur cross roads"
-                    value={formState?.location?.addressLine2}
+                    value={formState?.location?.addressLine2 || ""}
                     onChange={(e) =>
                       handleAddressChange(e.target.value, "addressLine2")
                     }
@@ -331,7 +317,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
                     fullWidth
                     label="City"
                     placeholder="Eg:- Hyderabad"
-                    value={formState?.location?.city}
+                    value={formState?.location?.city || ""}
                     onChange={(e) =>
                       handleAddressChange(e.target.value, "city")
                     }
@@ -342,7 +328,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
                     fullWidth
                     label="State"
                     placeholder="Eg:- Telangana"
-                    value={formState?.location?.state}
+                    value={formState?.location?.state || ""}
                     onChange={(e) =>
                       handleAddressChange(e.target.value, "state")
                     }
@@ -353,7 +339,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
                     fullWidth
                     label="Pincode"
                     placeholder="Eg:- 522018"
-                    value={formState?.location?.pincode}
+                    value={formState?.location?.pincode || ""}
                     onChange={(e) =>
                       handleAddressChange(e.target.value, "pincode")
                     }
@@ -364,7 +350,7 @@ export const AddEditKitchen = (props: AddEditKitchenProps) => {
                     fullWidth
                     label="Country"
                     placeholder="Eg:- 522018"
-                    value={formState?.location?.country}
+                    value={formState?.location?.country || ""}
                     onChange={(e) =>
                       handleAddressChange(e.target.value, "country")
                     }

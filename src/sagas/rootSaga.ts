@@ -9,5 +9,7 @@ export function* RootSaga() {
     KitchensSaga.getMealsByKitchenIdSaga(),
     KitchensSaga.createKitchenSaga(),
     KitchensSaga.deleteKitchenSaga(),
+    KitchensSaga.getKitchenByIdSaga(),
+    KitchensSaga.editKitchenSaga(),
   ]);
 }

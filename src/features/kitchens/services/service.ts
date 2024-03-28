@@ -12,11 +12,13 @@ export class KitchensService {
   };
 
   static fetchKitchensById = (id: string) => {
-    return fetchData((KITCHEN_CONSTANTS.PARAM_URL.KITCHENS_BY_ID, id));
+    return fetchData(KITCHEN_CONSTANTS.PARAM_URL.KITCHENS_BY_ID, [id]);
   };
 
-  static updateKicthen = (id: string, req: any) => {
-    return updateData((KITCHEN_CONSTANTS.PARAM_URL.KITCHENS_BY_ID, id), req);
+  static updateKicthen = (req: any) => {
+    return updateData(KITCHEN_CONSTANTS.PARAM_URL.KITCHENS_BY_ID, req, [
+      req?._id,
+    ]);
   };
 
   static deleteKitchen = (id: string) => {

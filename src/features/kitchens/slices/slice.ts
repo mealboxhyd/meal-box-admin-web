@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { KITCHEN_LOOKUPS } from "../constants/constants";
 
 const initialState = {
   isLoading: false,
@@ -10,6 +11,8 @@ const initialState = {
   kitchenRequest: {},
   kitchenModal: false,
   deleteKitchenId: "",
+  kitchenInfo: {},
+  selectedKitchen: {},
 };
 
 const kicthensSlice = createSlice({
@@ -33,7 +36,15 @@ const kicthensSlice = createSlice({
       state.isLoading = true;
     },
     fetchKitchenPlansSuccess: (state, action) => {
-      state.plans = action.payload;
+      state.plans = action.payload.map((plan: any) => {
+        delete plan.createdAt;
+        delete plan.updatedAt;
+        delete plan.status;
+        delete plan.__v;
+        return {
+          ...plan,
+        };
+      });
       state.isLoading = false;
     },
     fetchKitchenPlansFailure: (state) => {
@@ -98,6 +109,79 @@ const kicthensSlice = createSlice({
     },
     deleteKitchenFailure: (state) => {
       state.deleteKitchenId = "";
+      state.isLoading = false;
+    },
+    getKitchenInfoById: (state, action) => {
+      state.isLoading = true;
+      state.kitchenModal = true;
+      state.selectedKitchen = action.payload;
+    },
+    getKitchenByIdSuccess: (state, action) => {
+      const data = action.payload;
+      data.searchTags = data?.searchTags?.join(",");
+      data.badges = data?.badges?.join(",");
+      data.contact = data?.contact?.join(",");
+      // const selectedPlans: any = [];
+      // state.plans.forEach((ap: any) => {
+      //   data.availablePlans.forEach((p: any) => {
+      //     if (p._id === ap._id) {
+      //       selectedPlans.push(ap);
+      //     }
+      //   });
+      // });
+      // data.availablePlans = selectedPlans;
+
+      const kitchenTypes: any = [];
+      KITCHEN_LOOKUPS.KITCHEN_TYPES.forEach((type: any) => {
+        data.type.forEach((t: any) => {
+          if (t === type.value) {
+            kitchenTypes.push(type);
+          }
+        });
+      });
+
+      const paymentOptions: any = [];
+      KITCHEN_LOOKUPS.PAYMENTS_TYPES.forEach((type: any) => {
+        data.paymentsAccepted.forEach((t: any) => {
+          if (t === type.value) {
+            paymentOptions.push(type);
+          }
+        });
+      });
+      data.type = kitchenTypes;
+      data.paymentsAccepted = paymentOptions;
+      state.kitchenImageUrls = data?.images;
+      state.kitchenInfo = data;
+      state.selectedKitchen = {};
+      state.isLoading = false;
+    },
+    getKitchenByIdFailure: (state) => {
+      state.isLoading = false;
+      state.selectedKitchen = {};
+    },
+    editKitchen: (state, action) => {
+      const request = action.payload;
+      request.searchTags = request?.searchTags?.split(",");
+      request.badges = request?.badges?.split(",");
+      request.contact = request?.contact?.split(",");
+      request.availablePlans = request?.availablePlans?.map(
+        (plan: any) => plan._id
+      );
+      request.type = request?.type?.map((t: any) => t.value);
+      request.paymentsAccepted = request?.paymentsAccepted?.map(
+        (payment: any) => payment.value
+      );
+      request.status = "ACT";
+      state.kitchenRequest = request;
+    },
+    editKitchenSuccess: (state) => {
+      state.kitchenRequest = {};
+      state.kitchenImages = [];
+      state.kitchenImageUrls = [];
+      state.kitchenMeals = [];
+      state.kitchenModal = false;
+    },
+    editKitchenFailure: (state) => {
       state.isLoading = false;
     },
   },

@@ -82,6 +82,31 @@ function* createKitchenAction(): any {
   }
 }
 
+function* editKitchenAction(): any {
+  const { kitchenRequest } = yield select(kitchensState);
+  try {
+    yield call(KitchensService.updateKicthen, kitchenRequest);
+    yield put(kicthensSlice.actions.createKitchenSuccess());
+    yield put(
+      homeSlice.actions.storeSnackbarData({
+        message: `${kitchenRequest.name} is updated successfully`,
+        open: true,
+        severity: "success",
+      })
+    );
+    yield put(kicthensSlice.actions.fetchKitchens());
+  } catch (e) {
+    yield put(kicthensSlice.actions.createKitchenFailure());
+    yield put(
+      homeSlice.actions.storeSnackbarData({
+        message: `Failed to update kitchen ${kitchenRequest.name}`,
+        open: true,
+        severity: "error",
+      })
+    );
+  }
+}
+
 function* deleteKitchenAction(): any {
   const { deleteKitchenId } = yield select(kitchensState);
   try {
@@ -100,6 +125,33 @@ function* deleteKitchenAction(): any {
     yield put(
       homeSlice.actions.storeSnackbarData({
         message: `Failed to create kitchen`,
+        open: true,
+        severity: "error",
+      })
+    );
+  }
+}
+
+function* getKitchenByIdActon(): any {
+  const { selectedKitchen } = yield select(kitchensState);
+  try {
+    const results = yield call(
+      KitchensService.fetchKitchensById,
+      selectedKitchen?._id
+    );
+    yield put(kicthensSlice.actions.getKitchenByIdSuccess(results));
+    yield put(
+      homeSlice.actions.storeSnackbarData({
+        message: `${selectedKitchen?.name} info retrieved successfully`,
+        open: true,
+        severity: "success",
+      })
+    );
+  } catch (e) {
+    yield put(kicthensSlice.actions.getKitchenByIdFailure());
+    yield put(
+      homeSlice.actions.storeSnackbarData({
+        message: `Failed to fetch ${selectedKitchen?.name} info`,
         open: true,
         severity: "error",
       })
@@ -133,10 +185,23 @@ function* deleteKitchenSaga() {
   yield takeEvery(kicthensSlice.actions.deleteKitchen, deleteKitchenAction);
 }
 
+function* editKitchenSaga() {
+  yield takeEvery(kicthensSlice.actions.editKitchen, editKitchenAction);
+}
+
+function* getKitchenByIdSaga() {
+  yield takeEvery(
+    kicthensSlice.actions.getKitchenInfoById,
+    getKitchenByIdActon
+  );
+}
+
 export {
   fetchKitchensSaga,
   fetchKitchenPlansSaga,
   getMealsByKitchenIdSaga,
   createKitchenSaga,
   deleteKitchenSaga,
+  getKitchenByIdSaga,
+  editKitchenSaga,
 };
